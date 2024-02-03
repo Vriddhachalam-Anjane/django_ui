@@ -3,8 +3,8 @@ Base settings to build other settings files upon.
 """
 import os
 from pathlib import Path
-import environ
 
+import environ
 
 ROOT_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 # dbt/
@@ -45,11 +45,6 @@ DATABASES = {"default": env.db("DATABASE_URL")}
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 # https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-DEFAULT_AUTO_FIELD
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# SESSION
-# ------------------------------------------------------------------------------
-# https://docs.djangoproject.com/en/dev/ref/settings/#session-engine
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 # URLS
 # ------------------------------------------------------------------------------
@@ -94,8 +89,7 @@ MIGRATION_MODULES = {"sites": "dbt.contrib.sites.migrations"}
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#authentication-backends
 AUTHENTICATION_BACKENDS = [
-    'AutomaticDjangoAuthentication.settings.AuthenticationBackend',
-    # 'django.contrib.auth.backends.RemoteUserBackend',
+    "django.contrib.auth.backends.ModelBackend",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-user-model
 AUTH_USER_MODEL = "users.User"
@@ -107,38 +101,21 @@ LOGIN_URL = "account_login"
 # PASSWORDS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#password-hashers
-# PASSWORD_HASHERS = [
-#     "django.contrib.auth.hashers.Argon2PasswordHasher",
-#     "django.contrib.auth.hashers.PBKDF2PasswordHasher",
-#     "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
-#     "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
-# ]
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.Argon2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
+    "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
+]
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
-# AUTH_PASSWORD_VALIDATORS = [
-#     {
-#         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
-#     },
-#     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-#     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-#     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
-# ]
-AUTH_PASSWORD_VALIDATORS = []
-
-#enable proxy fix
-# ENABLE_PROXY_FIX = True
-
-#auth_type
-# AUTH_TYPE = AUTH_REMOTE_USER
-
-#root login
-# FORCE_ROOT_LOGIN = False
-
-#anonymous
-ALLOW_ANONYMOUS = True
-
-REMOTE_USER_HEADER = 'HTTP_REMOTE_USER'
-
-REMOTE_USER_DEFAULT_USERNAME = 'admin'
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+]
 
 # MIDDLEWARE
 # ------------------------------------------------------------------------------
@@ -151,8 +128,6 @@ MIDDLEWARE = [
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "AutomaticDjangoAuthentication.settings.AutomaticUserLoginMiddleware",
-    # "django.contrib.auth.middleware.RemoteUserMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.common.BrokenLinkEmailsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",

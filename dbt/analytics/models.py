@@ -138,6 +138,7 @@ class SSHKey(Model):
 class GitRepo(Model):
     name = CharField(max_length=255, blank=True, null=True)
     url = CharField(help_text="add with personal token", max_length=600)
+    branch = CharField(max_length=255, blank=True, null=True)
     ssh_key = OneToOneField(SSHKey, blank=True, null=True, on_delete=CASCADE)
 
     def public_key(self):
@@ -187,12 +188,14 @@ class SubProcessLog(Model):
 
 
 class DBTLogs(Model):
+    job_id = models.IntegerField(null=True)
     manifest = JSONField(null=True, blank=True)
     run_results = JSONField(null=True, blank=True)
     sources = JSONField(null=True, blank=True)
     catalog = JSONField(null=True, blank=True)
     command = CharField(max_length=255, null=True, blank=True)
     previous_command = CharField(max_length=255, null=True, blank=True)
+    status = CharField(max_length=255, null=True, blank=True)
     success = BooleanField(default=True)
     fail_reason = TextField(null=True, blank=True, max_length=10000)
     repository_used_name = CharField(max_length=255, null=True, blank=True)
@@ -209,10 +212,51 @@ class DBTLogs(Model):
     def __str__(self):
         return str(self.created_at)
 
+class DBTJobs(Model):
+    commands = CharField(max_length=255, null=True, blank=True)
+    job_id = models.IntegerField(null=True)
+    task_id = models.IntegerField(null=True)
+    success = BooleanField(default=True)
+    created_at = DateTimeField(null=True, blank=True)
+    completed_at = DateTimeField(null=True, blank=True)
+    repository = CharField(max_length=255, null=True, blank=True)
+    profile_yml = CharField(max_length=255, null=True, blank=True)
+    periodic_task = CharField(max_length=255, null=True, blank=True)
+    status = CharField(max_length=255, null=True, blank=True)
+    fail_reason = TextField(null=True, blank=True, max_length=10000)
+
+    class Meta:
+        verbose_name = "DBT Job"
+        verbose_name_plural = "DBT Jobs"
+
+    def __str__(self):
+        return str(self.created_at)
+    
+class PythonLogs(Model):
+    command = CharField(max_length=255, null=True, blank=True)
+    previous_command = CharField(max_length=255, null=True, blank=True)
+    success = BooleanField(default=True)
+    fail_reason = TextField(null=True, blank=True, max_length=10000)
+    repository_used_name = CharField(max_length=255, null=True, blank=True)
+    created_at = DateTimeField(auto_now_add=True)
+    completed_at = DateTimeField(null=True, blank=True)
+    periodic_task_name = CharField(max_length=255, null=True, blank=True)
+    profile_yml_used_name = CharField(max_length=255, null=True, blank=True)
+    python_stdout = TextField(null=True, blank=True, )
+
+    class Meta:
+        verbose_name = "Python Log"
+        verbose_name_plural = "Python Logs"
+
+    def __str__(self):
+        return str(self.created_at)
+
+
 
 class Args(Model):
     alias = BigAutoField(primary_key=True, unique=True)
     dbt_log = ForeignKey(DBTLogs, on_delete=CASCADE, null=True, blank=True)
+    # dbt_job_log = ForeignKey(DBTJobs, on_delete=CASCADE, null=True, blank=True)
     quiet = CharField(max_length=255, null=True, blank=True)
     which = CharField(max_length=255, null=True, blank=True)
     no_print = CharField(max_length=255, null=True, blank=True)

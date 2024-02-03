@@ -15,9 +15,9 @@ services:
       - -c
       - >
         if [ ! -f /passwords/password.txt ]; then
-          echo "remote_usr=admin" >> /passwords/password.txt;
-          echo "remote_pwd=$$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 24)" >> /passwords/password.txt;
-          echo "postgres_user=admin" >> /passwords/password.txt;
+          echo "dbt_login=dbtuser" > /passwords/password.txt;
+          echo "dbt_password=$$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)" >> /passwords/password.txt;
+          echo "postgres_user=dbtuser" >> /passwords/password.txt;
           echo "postgres_password=$$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 24)" >> /passwords/password.txt;
         fi;
         echo "passwords generated";
@@ -34,6 +34,10 @@ services:
       - postgres
       - redis
     volumes:
+      - ./config:/app/config
+      - ./dbt:/app/dbt
+      - ./compose:/app/compose
+      - ./staticfiles:/app/staticfiles
       - .data/dbt_scheduler_data:/root/.dbt
       - .data/passwords:/passwords
     env_file:
@@ -60,7 +64,7 @@ services:
       - ./.envs/.local/.postgres
     restart: "no"
     ports:
-      - "5433:5432"
+      - "5432:5432"
 
 #  pgrst:
 #    image: postgrest/postgrest
@@ -103,6 +107,10 @@ services:
     ports: [ ]
     command: /start-celeryworker
     volumes:
+      - ./config:/app/config
+      - ./dbt:/app/dbt
+      - ./compose:/app/compose
+      - ./staticfiles:/app/staticfiles
       - .data/dbt_scheduler_data:/root/.dbt
       - .data/passwords:/passwords
 
@@ -118,7 +126,10 @@ services:
       - postgres
     ports: [ ]
     volumes:
+      - ./config:/app/config
+      - ./dbt:/app/dbt
+      - ./compose:/app/compose
+      - ./staticfiles:/app/staticfiles
       - .data/dbt_scheduler_data:/root/.dbt
-      - ./passwords:/passwords
+      - .data/passwords:/passwords
     command: /start-celerybeat
-

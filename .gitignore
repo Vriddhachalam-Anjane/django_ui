@@ -115,3 +115,10 @@ data
 .logs
 
 passwords/*
+# staticfiles/*
+# ./staticfiles
+staticfiles/
+
+dbt/analytics/migrations/
+dbt/contrib/sites/migrations/
+dbt/users/migrations/

@@ -25,7 +25,7 @@ def clone_git_repo(instance) -> (bool, str):
     print(EXTERNAL_REPO_PREFIX, THIS_PROJECT_PATH, EXTERNAL_REPO_NAME, destination)
     if os.path.isdir(destination):  # if exist
         subprocess.run(["rm", "-rf", destination], check=True, capture_output=True)
-
+    
     if instance.url.startswith("git"):
         pvt_key = os.path.join(
             os.getenv("HOME"),
@@ -37,8 +37,10 @@ def clone_git_repo(instance) -> (bool, str):
             pvt_key, instance.url, destination
         )
     else:
-        cmd = "/usr/bin/git clone {} {}".format(instance.url, destination)
-
+        if instance.branch is None or instance.branch.isspace():   
+            cmd = "/usr/bin/git clone {} {}".format(instance.url, destination)
+        else:
+            cmd = "/usr/bin/git clone --branch {} {} {}".format(instance.branch, instance.url, destination)
     print(cmd)
     p1 = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 

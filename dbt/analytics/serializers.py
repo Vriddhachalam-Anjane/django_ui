@@ -5,6 +5,7 @@ from rest_framework.exceptions import ValidationError
 from dbt.analytics.models import (
     GitRepo,
     ProfileYAML,
+    PythonLogs,
     SSHKey,
     PeriodicTask as PeriodicTaskModel,
 )
@@ -39,6 +40,11 @@ class GitRepoSerializer(serializers.ModelSerializer):
 class ProfileYAMLSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProfileYAML
+        fields = "__all__"
+
+class PythonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PythonLogs
         fields = "__all__"
 
 

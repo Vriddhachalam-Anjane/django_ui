@@ -19,25 +19,26 @@ app.autodiscover_tasks()
 
 
 @shared_task
-@app.task(bind=True, name="dbt_runner")
+@app.task(bind=True, name="dbt_runner_task")
 def dbt_runner_task(self, *args, **kwargs):
-    option = "--dbt_command={}".format(self.request.args[0])
+    # option = "--dbt_command={}".format(self.request.args[0])
+    option = "--dbt_command={}".format(self.request.args)
     option_two = "--pk={}".format(self.request.kwargs)  # pk is git repo object id
-    call_command("dbt_command", option, option_two)
+    # call_command("dbt_command", option, option_two)
+    call_command("job_command", option, option_two)
 
-@app.task(bind=True, name="python_runner")
+@app.task(bind=True, name="python_runner_task")
 def python_runner_task(self, *args, **kwargs):
-    option = "--dbt_command={}".format(self.request.args[0])
+    option = "--python_command={}".format(self.request.args[0])
+    # option = "--dbt_command={}".format(self.request.args)
     option_two = "--pk={}".format(self.request.kwargs)  # pk is git repo object id
-    call_command("dbt_command", option, option_two)
+    call_command("python_command", option, option_two)
 
-
-@app.task(bind=True, name="awesome_python_runner")
-def awesome_python_runner_task(self, *args, **kwargs):
-    option = "--dbt_command={}".format(self.request.args[0])
-    option_two = "--pk={}".format(self.request.kwargs)  # pk is git repo object id
-    call_command("dbt_command", option, option_two)
 
 @app.task(bind=True, name="dbt_to_db")
 def dbt_to_db(self):
     call_command("dbt_to_db")
+
+@app.task(bind=True, name="python_to_db")
+def python_to_db(self):
+    call_command("python_to_db")

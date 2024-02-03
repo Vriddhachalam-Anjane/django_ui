@@ -5,32 +5,21 @@ set -o pipefail
 set -o nounset
 
 set_database_url() {
-  echo "create database with port:5433 and username: dbtuser, and db:analytics"
   postgres_password=$(grep 'postgres_password' /passwords/password.txt | cut -d '=' -f 2)
 
   # Set DATABASE_URL environment variable
   database_url="postgres://dbtuser:$postgres_password@postgres:5432/analytics"
   export DATABASE_URL="$database_url"
+
 }
-
-# get_remote_user() {
-#   read -p "Enter remote_user: " remote_user
-#   export remote_user
-# }
-# echo "going to set remote_user"
-# export remote_user = "admin"
-# echo "remote_user set"
-echo "database_url export done..."
-
-echo "fetching user..."
-
+#  create superuser
 create_superuser() {
-  # Use remote_user as default
-  username="$(grep 'remote_usr' /passwords/password.txt | cut -d '=' -f 2)"  # fetching user_name from password.txt
-  email="$username@example.com"
-  password="$(grep 'remote_pwd' /passwords/password.txt | cut -d '=' -f 2)"  # You may want to set a secure default password
-  echo "username:${username}"
-  echo "password:${password}"
+  # Set predefined values for the superuser credentials
+  username=$(grep 'dbt_login' /passwords/password.txt | cut -d '=' -f 2)
+  email="dbtuser@example.com"
+  # Read password from /passwords/password.txt
+  password=$(grep 'dbt_password' /passwords/password.txt | cut -d '=' -f 2)
+
   # Check if the superuser already exists
   if python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); exists = User.objects.filter(username='$username').exists(); exit(0 if exists else 1)"; then
     # Superuser exists, skip creation
@@ -50,64 +39,16 @@ create_superuser() {
   fi
 }
 
-auto_login() {
-  # Check if remote_user is provided
-  echo "username:${username}"
-  echo "password:${password}"
-    if [ -n "$username" ]; then
-      echo "authenticating...."
-      # Try to authenticate the user
-      python manage.py login_user "$username" "$password"
-      # user_id=$(python manage.py shell -c "from django.contrib.auth import authenticate; user = authenticate(username='$username', password='$password'); print(user.id if user else '')")
-      # echo "${user_id}"
-      # if [ -n "$user_id" ]; then
-      #   # Set the user ID in the session
-      #   echo "DJANGO_USER_ID=$user_id" > /tmp/django_user_id
-      #   echo "User '$username' logged in successfully."
-      # else
-      #   echo "Failed to log in user '$username'."
-      # fi
-#       python manage.py shell <<EOF
-# from django.contrib.auth import authenticate, login
-# # from django.test import RequestFactory
-
-# # Create a dummy request
-# # dummy_request = RequestFactory().get('/')
-
-# username = "$username"
-# password = "$password"
-
-
-# print(f"Username = {username}")
-# print(f"Password = {password}" )
-
-# user = authenticate(request=None, username=username, password=password)
-# if user is not None:
-#     login(request=None, user=user)
-#     print(f"User '{username}' logged in successfully.")
-# else:
-#     print(f"Failed to log in user '{username}'.")
-# EOF
-    else
-      echo "Remote user not provided. Skipping authentication."
-    fi
-}
-
 set_database_url
-
-echo "started..."
 
 python manage.py makemigrations
 # Run migrations
 python manage.py migrate
 
-# get_remote_user
-
 create_superuser
-
+#
 # Execute DDL statements for the POSTGREST schema
 python manage.py shell <<EOF
-print(f"executing ddl...")
 from django.db import connection
 from django.db.utils import ProgrammingError
 # DDL statements
@@ -120,6 +61,7 @@ ddl_statements = '''
   CREATE VIEW gitrepo AS SELECT * FROM analytics_gitrepo;
   CREATE VIEW profileyaml AS SELECT * FROM analytics_profileyaml;
   CREATE VIEW sshkey AS SELECT * FROM analytics_sshkey;
+  CREATE VIEW pythonlogs AS SELECT * FROM analytics_pythonlogs;
   CREATE VIEW subprocesslog AS SELECT * FROM analytics_subprocesslog;
   REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM web_anon;
   REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public FROM web_anon;
@@ -146,13 +88,6 @@ with connection.cursor() as cursor:
                     raise e
 
 EOF
-
-# auto_login  - for calling the above function
-# python manage.py login_user ${username} ${password}  #this is the command line args, which goes to login_user, and it is also tested with positive 
-                                                     #result, but still some issue is there with session login, I don't know!
- 
-# django-admin startproject AutomaticDjangoAuthentication
-
 python manage.py collectstatic --noinput
 # Start the Django server
-python manage.py runserver_plus 0.0.0.0:8000
+python manage.py runserver 0.0.0.0:8000

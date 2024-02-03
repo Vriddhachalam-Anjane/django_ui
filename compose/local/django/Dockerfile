@@ -60,7 +60,8 @@ RUN pip install --no-cache-dir --no-index --find-links=/wheels/ /wheels/* \
 	&& rm -rf /wheels/
 
 RUN python -m pip install --upgrade pip setuptools wheel --no-cache-dir
-RUN python -m  pip install dbt-core dbt-postgres dbt-redshift dbt-snowflake dbt-bigquery
+RUN python -m  pip install dbt-core dbt-postgres dbt-redshift dbt-snowflake dbt-bigquery dbt-duckdb==1.5.2
+
 
 
 COPY ./compose/local/django/entrypoint /entrypoint

@@ -10,6 +10,8 @@ from drf_spectacular.views import (
 )
 from django.contrib import admin
 
+from dbt.analytics import views
+import dbt.analytics
 
 admin.site.index_title = "Features area"
 
@@ -27,6 +29,25 @@ urlpatterns = [
         SpectacularRedocView.as_view(url_name="api-schema"),
         name="api-redoc",
     ),
+     path("admin/", admin.site.urls,name="admin"),
+     path('home', views.home, name = 'home'),
+     path('python_logs_view', views.python_logs_view, name='FormView'),
+     path('python_logs_form', views.python_logs_form, name='FormView'),
+     path('dbt_logs_form', views.dbt_logs_form, name='FormView'),
+     path('dbt_logs_view', views.dbt_logs_view, name='FormView'),
+     path('dbt_jobs_view', views.dbt_jobs_view, name='FormView'),
+    #  path('analytics', include('analytics.urls')),
+     path('periodic_task_view', views.periodic_task_view, name='FormView'),
+     path('periodic_task_form', views.periodic_task_form, name='FormView'),
+     path('new_page', views.new_page_view, name='new_page'),
+     path('reload_div', views.reload_div, name='reload_div'),
+     path('profile_yaml_form', views.profile_yaml_form, name='profile_yaml_form'),
+     path('profile_yaml_view', views.profile_yaml_view, name='profile_yaml_view'),
+     path('periodic_task_add_form', views.periodic_task_add_form, name='FormView'),
+
+     path('git_repo_form', views.git_repo_form, name='FormView'),
+     path('git_repo_view', views.git_repo_view, name='FormView'),
+
     path("", admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
